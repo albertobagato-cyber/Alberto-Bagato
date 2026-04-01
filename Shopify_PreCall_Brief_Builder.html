@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shopify Plus — Pre-Call Brief Builder</title>
+  <style>
+    :root {
+      --green: #008060;
+      --green-dark: #004c3f;
+      --green-light: #e3f1ed;
+      --green-mid: #c9e8df;
+      --dark: #0a0a0a;
+      --cover-bg: #0d1f2d;
+      --text: #1a1a1a;
+      --muted: #6b6b6b;
+      --border: #e5e5e5;
+      --white: #ffffff;
+      --surface: #f8f8f6;
+      --blue: #1a5276;
+      --purple: #6c3483;
+      --amber: #92400e;
+      --amber-light: #fffbeb;
+      --amber-border: #fcd34d;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif; background:#f4f4f2; color:var(--text); line-height:1.6; }
+
+    /* ── HEADER ── */
+    .app-header { background:var(--dark); color:white; padding:14px 32px; display:flex; align-items:center; gap:12px; }
+    .app-logo { width:28px; height:28px; background:var(--green); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:800; color:white; }
+    .app-title { font-size:15px; font-weight:700; }
+    .app-subtitle { font-size:13px; color:rgba(255,255,255,.4); margin-left:6px; }
+    .app-meta { margin-left:auto; font-size:12px; color:rgba(255,255,255,.3); }
+
+    /* ── LAYOUT ── */
+    .app-body { max-width:840px; margin:0 auto; padding:32px 24px 80px; }
+
+    /* ── INTRO ── */
+    .intro-card { background:white; border:1px solid var(--border); border-radius:14px; padding:24px 28px; margin-bottom:24px; }
+    .intro-top { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+    .intro-icon { width:32px; height:32px; background:var(--green); border-radius:8px; display:flex; align-items:center; justify-content:center; }
+    .intro-icon svg { width:16px; height:16px; fill:white; }
+    .intro-title { font-size:16px; font-weight:700; }
+    .intro-tag { font-size:12px; color:var(--muted); margin-left:6px; font-weight:400; }
+    .intro-desc { font-size:14px; color:var(--text); line-height:1.65; }
+    .intro-desc strong { font-weight:600; }
+    .intro-meta { font-size:12px; color:var(--muted); margin-top:10px; }
+
+    /* ── STEPS ── */
+    .steps-nav { display:flex; background:white; border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:24px; }
+    .step-tab { flex:1; padding:14px 16px; display:flex; align-items:center; gap:10px; border-right:1px solid var(--border); font-size:13px; color:var(--muted); cursor:pointer; transition:background .15s; }
+    .step-tab:last-child { border-right:none; }
+    .step-tab.active { background:var(--green-light); color:var(--green-dark); }
+    .step-tab.done { color:var(--green); }
+    .step-num { width:24px; height:24px; border-radius:50%; background:var(--border); color:var(--muted); font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .step-tab.active .step-num, .step-tab.done .step-num { background:var(--green); color:white; }
+    .step-label { font-weight:600; }
+
+    /* ── PANEL ── */
+    .panel { display:none; }
+    .panel.active { display:block; }
+
+    /* ── CARD ── */
+    .card { background:white; border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+    .card-header { padding:20px 24px; border-bottom:1px solid var(--border); }
+    .card-header-num { font-size:11px; font-weight:700; color:var(--green); text-transform:uppercase; letter-spacing:.06em; margin-bottom:4px; }
+    .card-header h3 { font-size:16px; font-weight:700; }
+    .card-header p { font-size:13px; color:var(--muted); margin-top:3px; }
+    .card-body { padding:24px; }
+
+    /* ── FORM ── */
+    .form-section { margin-bottom:24px; }
+    .form-section:last-child { margin-bottom:0; }
+    .section-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--muted); margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+    .field-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+    .field-grid.cols3 { grid-template-columns:repeat(3,1fr); }
+    .field-grid.cols1 { grid-template-columns:1fr; }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field label { font-size:12px; font-weight:600; color:var(--text); }
+    .field .hint { font-size:11px; color:var(--muted); }
+    .field input, .field select, .field textarea { border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-size:14px; font-family:inherit; color:var(--text); background:white; transition:border-color .15s; width:100%; }
+    .field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--green); }
+    .field textarea { resize:vertical; min-height:80px; line-height:1.5; }
+
+    /* API key field */
+    .api-field { background:var(--amber-light); border:1px solid var(--amber-border); border-radius:10px; padding:14px 16px; display:flex; gap:12px; align-items:flex-start; }
+    .api-field-icon { font-size:18px; flex-shrink:0; margin-top:1px; }
+    .api-field-content { flex:1; }
+    .api-field-title { font-size:13px; font-weight:700; color:var(--amber); margin-bottom:4px; }
+    .api-field-desc { font-size:12px; color:var(--muted); margin-bottom:8px; }
+
+    /* ── REVIEW FIELDS ── */
+    .review-field { margin-bottom:16px; }
+    .review-field label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); display:block; margin-bottom:6px; }
+    .review-field textarea { border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:13px; font-family:inherit; width:100%; line-height:1.6; resize:vertical; min-height:60px; }
+    .review-field textarea:focus { outline:none; border-color:var(--green); }
+    .review-section { margin-bottom:28px; }
+    .review-section-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--green-light); display:flex; align-items:center; gap:8px; }
+    .review-section-icon { font-size:16px; }
+
+    /* ── LOADING ── */
+    .loading-state { text-align:center; padding:48px 24px; }
+    .loader { width:40px; height:40px; border:3px solid var(--green-light); border-top-color:var(--green); border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 16px; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-text { font-size:15px; font-weight:600; color:var(--text); }
+    .loading-sub { font-size:13px; color:var(--muted); margin-top:6px; }
+
+    /* ── ERROR ── */
+    .error-box { background:#fff0f0; border:1px solid #fca5a5; border-radius:10px; padding:16px 18px; color:#991b1b; font-size:13px; margin-top:16px; }
+    .error-box strong { display:block; margin-bottom:4px; font-size:14px; }
+
+    /* ── BUTTONS ── */
+    .btn-primary { background:var(--green); color:white; border:none; border-radius:8px; padding:11px 22px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:background .15s; display:inline-flex; align-items:center; gap:8px; }
+    .btn-primary:hover { background:var(--green-dark); }
+    .btn-primary:disabled { opacity:.5; cursor:not-allowed; }
+    .btn-secondary { background:white; color:var(--text); border:1px solid var(--border); border-radius:8px; padding:11px 22px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; transition:all .15s; }
+    .btn-secondary:hover { border-color:var(--green); color:var(--green); }
+    .btn-row { display:flex; gap:12px; justify-content:flex-end; margin-top:24px; }
+
+    /* ══════════════════════════════════════
+       BRIEF OUTPUT
+       ══════════════════════════════════════ */
+    .brief-wrapper { background:white; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+
+    /* Cover */
+    .brief-cover { background:var(--cover-bg); color:white; padding:48px 48px 40px; position:relative; overflow:hidden; }
+    .brief-cover::before { content:''; position:absolute; top:-60px; right:-60px; width:280px; height:280px; border-radius:50%; background:radial-gradient(circle,rgba(0,128,96,.2) 0%,transparent 70%); }
+    .brief-cover::after { content:''; position:absolute; bottom:-30px; left:20px; width:180px; height:180px; border-radius:50%; background:radial-gradient(circle,rgba(26,82,118,.3) 0%,transparent 70%); }
+    .brief-cover-tag { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.15em; color:rgba(0,220,130,.65); margin-bottom:10px; position:relative; z-index:1; }
+    .brief-cover-name { font-size:52px; font-weight:800; line-height:1.05; letter-spacing:-.02em; margin-bottom:6px; position:relative; z-index:1; }
+    .brief-cover-url { font-size:15px; color:rgba(255,255,255,.4); margin-bottom:28px; position:relative; z-index:1; }
+    .brief-cover-meta { display:flex; gap:0; position:relative; z-index:1; }
+    .brief-meta-item { padding:0 24px 0 0; margin-right:24px; border-right:1px solid rgba(255,255,255,.12); }
+    .brief-meta-item:last-child { border-right:none; }
+    .brief-meta-label { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.35); margin-bottom:3px; }
+    .brief-meta-value { font-size:13px; font-weight:600; color:rgba(255,255,255,.8); }
+
+    /* Sections */
+    .brief-section { padding:32px 48px; border-bottom:1px solid var(--border); }
+    .brief-section:last-child { border-bottom:none; }
+    .brief-section-header { display:flex; align-items:center; gap:12px; margin-bottom:20px; }
+    .brief-section-icon { font-size:20px; }
+    .brief-section-title { font-size:17px; font-weight:700; }
+    .brief-section-sub { font-size:12px; color:var(--muted); margin-left:auto; font-weight:500; }
+
+    /* Brand overview */
+    .brief-overview { font-size:15px; line-height:1.75; color:var(--text); background:var(--surface); border-left:3px solid var(--green); padding:16px 20px; border-radius:0 8px 8px 0; }
+
+    /* Opportunity cards */
+    .opp-grid { display:flex; flex-direction:column; gap:12px; }
+    .opp-card { display:flex; gap:14px; padding:16px; border:1px solid var(--border); border-radius:10px; align-items:flex-start; }
+    .opp-card.priority-1 { border-color:var(--green); background:var(--green-light); }
+    .opp-num { width:28px; height:28px; border-radius:8px; background:var(--dark); color:white; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .opp-card.priority-1 .opp-num { background:var(--green); }
+    .opp-title { font-size:14px; font-weight:700; margin-bottom:4px; }
+    .opp-card.priority-1 .opp-title { color:var(--green-dark); }
+    .opp-desc { font-size:13px; color:var(--muted); line-height:1.55; }
+
+    /* Objections */
+    .obj-list { display:flex; flex-direction:column; gap:14px; }
+    .obj-item { border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+    .obj-question { background:var(--surface); padding:12px 16px; font-size:13px; font-weight:700; color:var(--text); display:flex; gap:8px; align-items:flex-start; }
+    .obj-q-icon { color:var(--muted); flex-shrink:0; }
+    .obj-answer { padding:12px 16px; font-size:13px; color:var(--text); line-height:1.6; border-top:1px solid var(--border); display:flex; gap:8px; align-items:flex-start; background:white; }
+    .obj-a-icon { color:var(--green); font-weight:700; flex-shrink:0; }
+
+    /* Discovery questions */
+    .dq-list { display:flex; flex-direction:column; gap:10px; }
+    .dq-item { display:flex; gap:12px; align-items:flex-start; padding:13px 16px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+    .dq-num { width:24px; height:24px; border-radius:50%; background:var(--green); color:white; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .dq-text { font-size:13px; line-height:1.55; }
+
+    /* Opener */
+    .opener-box { background:var(--cover-bg); color:white; border-radius:12px; padding:24px 28px; }
+    .opener-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:rgba(0,220,130,.65); margin-bottom:10px; }
+    .opener-text { font-size:15px; line-height:1.75; color:rgba(255,255,255,.85); font-style:italic; }
+
+    /* Closing */
+    .closing-grid { display:flex; flex-direction:column; gap:10px; }
+    .closing-item { display:flex; gap:12px; padding:12px 16px; border:1px solid var(--border); border-radius:10px; align-items:flex-start; }
+    .closing-dot { width:8px; height:8px; border-radius:50%; background:var(--green); flex-shrink:0; margin-top:5px; }
+    .closing-text { font-size:13px; line-height:1.55; }
+
+    /* Actions */
+    .brief-actions { display:flex; gap:12px; justify-content:flex-end; padding:18px 24px; background:var(--surface); border-top:1px solid var(--border); }
+
+    /* Print */
+    @media print {
+      body { background:white; }
+      .app-header,.steps-nav,.intro-card,.btn-row,.brief-actions,#step1,#step2 { display:none !important; }
+      .app-body { padding:0; max-width:none; }
+      .brief-wrapper { border:none; border-radius:0; }
+      .brief-section { page-break-inside:avoid; }
+      .brief-cover { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="app-logo">S</div>
+  <span class="app-title">Shopify Plus</span>
+  <span class="app-subtitle">· Pre-Call Brief Builder</span>
+  <span class="app-meta">EMEA SMB Acceleration</span>
+</header>
+
+<div class="app-body">
+
+  <div class="intro-card">
+    <div class="intro-top">
+      <div class="intro-icon">
+        <svg viewBox="0 0 20 20"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9zM4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z"/></svg>
+      </div>
+      <div>
+        <span class="intro-title">Pre-Call Brief Builder</span>
+        <span class="intro-tag">· Shopify Plus</span>
+      </div>
+    </div>
+    <p class="intro-desc">A sales tool for the <strong>EMEA SMB Acceleration team</strong>. Enter a merchant URL and their current plan to generate a tailored, AI-powered pre-call prep sheet — brand overview, Plus upgrade opportunities, objection handling, and discovery questions — in under 60 seconds.</p>
+    <p class="intro-meta">Built for EMEA SMB Acceleration · Questions? Slack <strong>@alberto.bagato</strong></p>
+  </div>
+
+  <!-- Steps Nav -->
+  <div class="steps-nav">
+    <div class="step-tab active" id="tab1">
+      <div class="step-num">1</div>
+      <span class="step-label">Enter Merchant</span>
+    </div>
+    <div class="step-tab" id="tab2">
+      <div class="step-num">2</div>
+      <span class="step-label">Review Brief</span>
+    </div>
+    <div class="step-tab" id="tab3">
+      <div class="step-num">3</div>
+      <span class="step-label">View Pre-Call Sheet</span>
+    </div>
+  </div>
+
+  <!-- ── STEP 1 ── -->
+  <div class="panel active" id="step1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-num">Step 1</div>
+        <h3>Enter Merchant Details</h3>
+        <p>Provide the merchant URL, their current Shopify plan, and any context you already know.</p>
+      </div>
+      <div class="card-body">
+
+        <div class="form-section">
+          <div class="section-label">Merchant Info</div>
+          <div class="field-grid cols3">
+            <div class="field">
+              <label>Merchant URL *</label>
+              <input type="text" id="merchantUrl" placeholder="e.g. wolbrook.com" />
+            </div>
+            <div class="field">
+              <label>Merchant Name *</label>
+              <input type="text" id="merchantName" placeholder="e.g. Wolbrook" />
+            </div>
+            <div class="field">
+              <label>Current Shopify Plan</label>
+              <select id="currentPlan">
+                <option value="">Select plan…</option>
+                <option value="Basic">Basic</option>
+                <option value="Grow">Grow</option>
+                <option value="Advanced">Advanced</option>
+                <option value="Plus">Plus (expansion)</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-label">Additional Context</div>
+          <div class="field-grid cols1">
+            <div class="field">
+              <label>What do you already know about this merchant?</label>
+              <textarea id="context" placeholder="e.g. They sell luxury watches, operate in UK and Europe, interested in B2B wholesale, recently asked about multi-currency. Annual revenue ~£2M. Decision maker is the founder."></textarea>
+              <span class="hint">The more context you add, the more tailored the brief. Include anything relevant: product, market, pain points, recent conversations.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-label">Rep Details</div>
+          <div class="field-grid">
+            <div class="field">
+              <label>Your Name</label>
+              <input type="text" id="repName" value="Alberto" />
+            </div>
+            <div class="field">
+              <label>Call Objective</label>
+              <select id="callObj">
+                <option value="Plus upgrade">Plus upgrade</option>
+                <option value="Plus + POS">Plus + POS</option>
+                <option value="Plus + B2B">Plus + B2B</option>
+                <option value="Plus + Payments">Plus + Payments</option>
+                <option value="Discovery call">Discovery call</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="section-label">Claude API Key</div>
+          <div class="api-field">
+            <div class="api-field-icon">🔑</div>
+            <div class="api-field-content">
+              <div class="api-field-title">Anthropic API Key required</div>
+              <div class="api-field-desc">Used only to generate the brief. Never stored or sent anywhere other than api.anthropic.com.</div>
+              <div class="field">
+                <input type="password" id="apiKey" placeholder="sk-ant-api03-..." style="font-family:monospace;font-size:13px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div id="step1error"></div>
+
+    <div class="btn-row">
+      <button class="btn-primary" onclick="generateBrief()" id="generateBtn">
+        <span>Generate Brief</span>
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── STEP 2: Loading + Review ── -->
+  <div class="panel" id="step2">
+
+    <div id="loadingState" class="card">
+      <div class="loading-state">
+        <div class="loader"></div>
+        <div class="loading-text">Generating pre-call brief…</div>
+        <div class="loading-sub">Analysing merchant profile and building your prep sheet</div>
+      </div>
+    </div>
+
+    <div id="reviewState" style="display:none;">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-header-num">Step 2</div>
+          <h3>Review &amp; Edit Brief</h3>
+          <p>AI-generated content — review and adjust before viewing the final sheet.</p>
+        </div>
+        <div class="card-body" id="reviewBody"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+        <button class="btn-primary" onclick="renderFinalBrief()">View Pre-Call Sheet →</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── STEP 3 ── -->
+  <div class="panel" id="step3">
+    <div style="display:flex;gap:12px;justify-content:flex-end;padding:16px 20px;background:white;border:1px solid var(--border);border-radius:10px;margin-bottom:16px;">
+      <button class="btn-secondary" onclick="goToStep(2)">← Edit Brief</button>
+      <button class="btn-primary" onclick="window.print()">⬇ Export PDF</button>
+    </div>
+    <div class="brief-wrapper" id="briefOutput"></div>
+  </div>
+
+</div>
+
+<script>
+let briefData = {};
+
+function goToStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('step'+i).classList.toggle('active', i===n);
+    const tab = document.getElementById('tab'+i);
+    tab.classList.toggle('active', i===n);
+    if (i < n) tab.classList.add('done'); else tab.classList.remove('done');
+  });
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function val(id) { return (document.getElementById(id).value || '').trim(); }
+
+async function generateBrief() {
+  const url = val('merchantUrl');
+  const name = val('merchantName');
+  const plan = val('currentPlan');
+  const context = val('context');
+  const apiKey = val('apiKey');
+  const obj = val('callObj');
+
+  const errEl = document.getElementById('step1error');
+  errEl.innerHTML = '';
+
+  if (!url || !name) {
+    errEl.innerHTML = '<div class="error-box"><strong>Missing fields</strong>Please enter the merchant URL and name.</div>';
+    return;
+  }
+  if (!apiKey || !apiKey.startsWith('sk-ant')) {
+    errEl.innerHTML = '<div class="error-box"><strong>API Key required</strong>Please enter a valid Anthropic API key (starts with sk-ant).</div>';
+    return;
+  }
+
+  goToStep(2);
+  document.getElementById('loadingState').style.display = '';
+  document.getElementById('reviewState').style.display = 'none';
+
+  const prompt = `You are an expert Shopify Plus sales coach for the EMEA SMB Acceleration team.
+
+Generate a comprehensive pre-call prep sheet for the following merchant. Return ONLY valid JSON, no markdown, no explanation.
+
+Merchant Details:
+- URL: ${url}
+- Name: ${name}
+- Current Plan: ${plan || 'Unknown'}
+- Call Objective: ${obj}
+- Additional Context: ${context || 'None provided'}
+
+Return this exact JSON structure:
+{
+  "brandOverview": "2-3 sentence description of the brand, what they sell, their market positioning, and any notable characteristics visible from their website or context provided.",
+  "currentSetup": "1-2 sentences about their current Shopify setup and any tech stack observations based on the plan and context.",
+  "upgradeOpportunities": [
+    {
+      "title": "Short title of opportunity",
+      "description": "2-3 sentences explaining why this is relevant to this specific merchant and the business impact.",
+      "feature": "Specific Shopify Plus feature that addresses this"
+    },
+    {
+      "title": "Second opportunity",
+      "description": "2-3 sentences.",
+      "feature": "Relevant Plus feature"
+    },
+    {
+      "title": "Third opportunity",
+      "description": "2-3 sentences.",
+      "feature": "Relevant Plus feature"
+    }
+  ],
+  "objections": [
+    {
+      "objection": "The most likely objection this merchant will raise",
+      "rebuttal": "Specific, compelling rebuttal tailored to this merchant's situation"
+    },
+    {
+      "objection": "Second likely objection",
+      "rebuttal": "Tailored rebuttal"
+    },
+    {
+      "objection": "Third likely objection",
+      "rebuttal": "Tailored rebuttal"
+    }
+  ],
+  "discoveryQuestions": [
+    "Question 1 — open-ended, designed to surface pain",
+    "Question 2",
+    "Question 3",
+    "Question 4",
+    "Question 5 — designed to surface urgency or timeline"
+  ],
+  "conversationOpener": "A natural, confident 2-3 sentence opening for the call. Should reference something specific about their business to show you've done your homework. Not generic.",
+  "closingStrategy": [
+    "First closing move or commitment to ask for",
+    "Second step if first is rejected",
+    "Fallback minimum commitment"
+  ]
+}`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-opus-4-6',
+        max_tokens: 2048,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `API error ${response.status}`);
+    }
+
+    const data = await response.json();
+    const raw = data.content?.[0]?.text || '';
+
+    // Parse JSON — strip any markdown fences if present
+    const jsonStr = raw.replace(/```json\n?/g,'').replace(/```\n?/g,'').trim();
+    briefData = JSON.parse(jsonStr);
+    briefData._meta = {
+      merchant: name, url, plan: plan || 'Unknown', obj,
+      rep: val('repName') || 'Alberto',
+      date: new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'})
+    };
+
+    renderReview();
+
+  } catch(e) {
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('reviewState').style.display = '';
+    document.getElementById('reviewBody').innerHTML = `
+      <div class="error-box">
+        <strong>Generation failed</strong>${e.message || 'Unknown error. Check your API key and try again.'}
+      </div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn-secondary" onclick="goToStep(1)">← Go Back</button>
+      </div>`;
+  }
+}
+
+function renderReview() {
+  document.getElementById('loadingState').style.display = 'none';
+  document.getElementById('reviewState').style.display = '';
+
+  const d = briefData;
+
+  const oppRows = (d.upgradeOpportunities || []).map((o,i) => `
+    <div class="review-field">
+      <label>Opportunity ${i+1} — ${esc(o.feature || '')}</label>
+      <textarea id="rv_opp_title_${i}" style="min-height:36px;font-weight:700;">${esc(o.title || '')}</textarea>
+      <textarea id="rv_opp_desc_${i}" style="margin-top:6px;">${esc(o.description || '')}</textarea>
+    </div>`).join('');
+
+  const objRows = (d.objections || []).map((o,i) => `
+    <div class="review-field">
+      <label>Objection ${i+1}</label>
+      <textarea id="rv_obj_q_${i}" style="min-height:40px;font-weight:600;">${esc(o.objection || '')}</textarea>
+      <textarea id="rv_obj_a_${i}" style="margin-top:6px;">${esc(o.rebuttal || '')}</textarea>
+    </div>`).join('');
+
+  const dqRows = (d.discoveryQuestions || []).map((q,i) => `
+    <div class="review-field">
+      <label>Question ${i+1}</label>
+      <textarea id="rv_dq_${i}" style="min-height:44px;">${esc(q || '')}</textarea>
+    </div>`).join('');
+
+  const csRows = (d.closingStrategy || []).map((s,i) => `
+    <div class="review-field">
+      <label>Closing Move ${i+1}</label>
+      <textarea id="rv_cs_${i}" style="min-height:44px;">${esc(s || '')}</textarea>
+    </div>`).join('');
+
+  document.getElementById('reviewBody').innerHTML = `
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">🏷</span> Brand Overview</div>
+      <div class="review-field"><textarea id="rv_overview" style="min-height:80px;">${esc(d.brandOverview || '')}</textarea></div>
+      <div class="review-field"><label>Current Setup</label><textarea id="rv_setup" style="min-height:56px;">${esc(d.currentSetup || '')}</textarea></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">🎯</span> Upgrade Opportunities</div>
+      ${oppRows}
+    </div>
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">🛡</span> Objections & Rebuttals</div>
+      ${objRows}
+    </div>
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">💬</span> Discovery Questions</div>
+      ${dqRows}
+    </div>
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">🎤</span> Conversation Opener</div>
+      <div class="review-field"><textarea id="rv_opener" style="min-height:80px;">${esc(d.conversationOpener || '')}</textarea></div>
+    </div>
+    <div class="review-section">
+      <div class="review-section-title"><span class="review-section-icon">🏁</span> Closing Strategy</div>
+      ${csRows}
+    </div>`;
+}
+
+function readReview() {
+  const d = briefData;
+  d.brandOverview = document.getElementById('rv_overview')?.value || d.brandOverview;
+  d.currentSetup = document.getElementById('rv_setup')?.value || d.currentSetup;
+  (d.upgradeOpportunities || []).forEach((o,i) => {
+    o.title = document.getElementById(`rv_opp_title_${i}`)?.value || o.title;
+    o.description = document.getElementById(`rv_opp_desc_${i}`)?.value || o.description;
+  });
+  (d.objections || []).forEach((o,i) => {
+    o.objection = document.getElementById(`rv_obj_q_${i}`)?.value || o.objection;
+    o.rebuttal = document.getElementById(`rv_obj_a_${i}`)?.value || o.rebuttal;
+  });
+  d.discoveryQuestions = (d.discoveryQuestions || []).map((q,i) =>
+    document.getElementById(`rv_dq_${i}`)?.value || q);
+  d.conversationOpener = document.getElementById('rv_opener')?.value || d.conversationOpener;
+  d.closingStrategy = (d.closingStrategy || []).map((s,i) =>
+    document.getElementById(`rv_cs_${i}`)?.value || s);
+}
+
+function renderFinalBrief() {
+  readReview();
+  const d = briefData;
+  const m = d._meta || {};
+
+  const oppCards = (d.upgradeOpportunities || []).map((o,i) => `
+    <div class="opp-card priority-${i===0?1:0}">
+      <div class="opp-num">${i+1}</div>
+      <div>
+        <div class="opp-title">${esc(o.title)}</div>
+        <div class="opp-desc">${esc(o.description)}</div>
+        ${o.feature ? `<div style="margin-top:6px;"><span style="font-size:11px;font-weight:700;background:white;border:1px solid var(--border);border-radius:12px;padding:3px 10px;color:var(--muted);">${esc(o.feature)}</span></div>` : ''}
+      </div>
+    </div>`).join('');
+
+  const objItems = (d.objections || []).map(o => `
+    <div class="obj-item">
+      <div class="obj-question"><span class="obj-q-icon">Q</span>${esc(o.objection)}</div>
+      <div class="obj-answer"><span class="obj-a-icon">A</span>${esc(o.rebuttal)}</div>
+    </div>`).join('');
+
+  const dqItems = (d.discoveryQuestions || []).map((q,i) => `
+    <div class="dq-item">
+      <div class="dq-num">${i+1}</div>
+      <div class="dq-text">${esc(q)}</div>
+    </div>`).join('');
+
+  const csItems = (d.closingStrategy || []).map(s => `
+    <div class="closing-item">
+      <div class="closing-dot"></div>
+      <div class="closing-text">${esc(s)}</div>
+    </div>`).join('');
+
+  document.getElementById('briefOutput').innerHTML = `
+    <div class="brief-cover">
+      <div class="brief-cover-tag">Pre-Call Prep Sheet — Shopify Plus</div>
+      <div class="brief-cover-name">${esc(m.merchant || 'Merchant')}</div>
+      <div class="brief-cover-url">${esc(m.url || '')}</div>
+      <div class="brief-cover-meta">
+        ${m.plan ? `<div class="brief-meta-item"><div class="brief-meta-label">Current Plan</div><div class="brief-meta-value">${esc(m.plan)}</div></div>` : ''}
+        <div class="brief-meta-item"><div class="brief-meta-label">Objective</div><div class="brief-meta-value">${esc(m.obj || 'Plus upgrade')}</div></div>
+        <div class="brief-meta-item"><div class="brief-meta-label">Prepared by</div><div class="brief-meta-value">${esc(m.rep || 'Alberto')}</div></div>
+        <div class="brief-meta-item"><div class="brief-meta-label">Date</div><div class="brief-meta-value">${esc(m.date || '')}</div></div>
+      </div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">🏷</span>
+        <span class="brief-section-title">Brand Overview</span>
+      </div>
+      <div class="brief-overview">${esc(d.brandOverview || '')}</div>
+      ${d.currentSetup ? `<p style="font-size:13px;color:var(--muted);margin-top:14px;line-height:1.6;">${esc(d.currentSetup)}</p>` : ''}
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">🎯</span>
+        <span class="brief-section-title">Plus Upgrade Opportunities</span>
+        <span class="brief-section-sub">Tailored to ${esc(m.merchant || 'this merchant')}</span>
+      </div>
+      <div class="opp-grid">${oppCards}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">🛡</span>
+        <span class="brief-section-title">Anticipated Objections</span>
+        <span class="brief-section-sub">With tailored rebuttals</span>
+      </div>
+      <div class="obj-list">${objItems}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">💬</span>
+        <span class="brief-section-title">Discovery Questions</span>
+        <span class="brief-section-sub">To surface pain &amp; urgency</span>
+      </div>
+      <div class="dq-list">${dqItems}</div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">🎤</span>
+        <span class="brief-section-title">Conversation Opener</span>
+      </div>
+      <div class="opener-box">
+        <div class="opener-label">Opening — ${esc(m.merchant || '')}</div>
+        <div class="opener-text">${esc(d.conversationOpener || '')}</div>
+      </div>
+    </div>
+
+    <div class="brief-section">
+      <div class="brief-section-header">
+        <span class="brief-section-icon">🏁</span>
+        <span class="brief-section-title">Closing Strategy</span>
+      </div>
+      <div class="closing-grid">${csItems}</div>
+    </div>`;
+
+  goToStep(3);
+}
+
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/\n/g,'<br>');
+}
+</script>
+</body>
+</html>
